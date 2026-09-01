@@ -7,13 +7,13 @@ services:
       DB_SCHEMA: ${DB_SCHEMA:-aulatrack}
       PORT: 8080
     ports:
-      - "${API_PORT:-8080}:8080"
+      - "8080:8080"
 
   webapp-react:
     build:
       context: ./webapp-react
       args:
-        VITE_API_URL: http://localhost:${API_PORT:-8080}
+        VITE_API_URL: http://localhost:8080
     depends_on:
       - api
     ports:
