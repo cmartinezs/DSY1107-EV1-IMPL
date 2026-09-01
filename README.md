@@ -77,6 +77,8 @@ PATCH  /api/tasks/{id}/status
 
 El quick check valida los tres módulos sin requerir una conexión real a Supabase.
 
+El backend usa **Maven Wrapper**; no requiere Maven instalado globalmente. Solo necesita JDK 21. El wrapper fija Maven 3.9.16 y descarga automáticamente lo necesario en la primera ejecución. Maven global queda únicamente como fallback de contingencia.
+
 Backend utiliza H2 únicamente durante tests automatizados; el runtime normal sigue siendo PostgreSQL.
 
 ### Linux / macOS / Git Bash
@@ -95,7 +97,7 @@ Valida:
 
 ```mermaid
 flowchart TD
-    Env[Java / Maven / Node / npm disponibles] --> API[API: mvn test + package]
+    Env[JDK / Node / npm disponibles] --> API[API: Maven Wrapper test + package]
     API --> React[React: npm install + build]
     React --> Angular[Angular: npm install + build]
     Angular --> Docker{¿Docker Compose disponible?}
@@ -172,16 +174,22 @@ set -a
 source .env
 set +a
 cd api
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
-PowerShell puede definirla para la sesión:
+Si el checkout no preservó el bit ejecutable de `mvnw`, usar:
+
+```bash
+sh ./mvnw spring-boot:run
+```
+
+PowerShell:
 
 ```powershell
 $env:SUPABASE_DB_URL="jdbc:postgresql://..."
 $env:DB_SCHEMA="aulatrack"
 cd api
-mvn spring-boot:run
+./mvnw.cmd spring-boot:run
 ```
 
 API: `http://localhost:8080`
