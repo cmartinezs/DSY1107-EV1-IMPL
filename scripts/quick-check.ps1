@@ -30,9 +30,7 @@ try {
 Write-Host "`n[2/3] React: install + build"
 Push-Location "$Root/webapp-react"
 try {
-    if (-not (Test-Path node_modules)) {
-        npm install --no-audit --no-fund
-    }
+    npm install --no-audit --no-fund
     npm run build
 } finally {
     Pop-Location
@@ -41,9 +39,7 @@ try {
 Write-Host "`n[3/3] Angular: install + build"
 Push-Location "$Root/webapp-ng"
 try {
-    if (-not (Test-Path node_modules)) {
-        npm install --no-audit --no-fund
-    }
+    npm install --no-audit --no-fund
     npm run build
 } finally {
     Pop-Location
