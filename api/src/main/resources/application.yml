@@ -9,6 +9,8 @@ spring:
     properties:
       hibernate:
         default_schema: ${DB_SCHEMA:aulatrack}
+        hbm2ddl:
+          create_namespaces: true
 
 server:
   port: ${PORT:8080}
