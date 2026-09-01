@@ -1,0 +1,49 @@
+#!/bin/sh
+set -e
+
+BASE_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+PROPS="$BASE_DIR/.mvn/wrapper/maven-wrapper.properties"
+WRAPPER_JAR="$BASE_DIR/.mvn/wrapper/maven-wrapper.jar"
+
+if [ ! -f "$PROPS" ]; then
+  echo "Error: missing $PROPS" >&2
+  exit 1
+fi
+
+prop() {
+  sed -n "s/^$1=//p" "$PROPS" | tail -n 1
+}
+
+WRAPPER_URL=$(prop wrapperUrl)
+if [ -z "$WRAPPER_URL" ]; then
+  WRAPPER_URL="https://repo.maven.apache.org/maven2/org/apache/maven/wrapper/maven-wrapper/3.3.4/maven-wrapper-3.3.4.jar"
+fi
+
+if [ ! -f "$WRAPPER_JAR" ]; then
+  mkdir -p "$(dirname "$WRAPPER_JAR")"
+  echo "Maven Wrapper: downloading bootstrap jar..." >&2
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL "$WRAPPER_URL" -o "$WRAPPER_JAR"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -q "$WRAPPER_URL" -O "$WRAPPER_JAR"
+  else
+    echo "Error: curl or wget is required for the first Maven Wrapper bootstrap." >&2
+    exit 1
+  fi
+fi
+
+if [ -n "${JAVA_HOME:-}" ]; then
+  JAVA_CMD="$JAVA_HOME/bin/java"
+else
+  JAVA_CMD=$(command -v java || true)
+fi
+
+if [ -z "$JAVA_CMD" ] || [ ! -x "$JAVA_CMD" ]; then
+  echo "Error: Java not found. Install JDK 21 or configure JAVA_HOME." >&2
+  exit 1
+fi
+
+exec "$JAVA_CMD" ${MAVEN_OPTS:-} \
+  -classpath "$WRAPPER_JAR" \
+  "-Dmaven.multiModuleProjectDirectory=$BASE_DIR" \
+  org.apache.maven.wrapper.MavenWrapperMain "$@"
