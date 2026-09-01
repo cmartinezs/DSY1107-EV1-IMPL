@@ -3,7 +3,7 @@ services:
     build:
       context: ./api
     environment:
-      SUPABASE_DB_URL: ${SUPABASE_DB_URL}
+      SUPABASE_DB_URL: ${SUPABASE_DB_URL:?SUPABASE_DB_URL no está definido. Copia .env.example a .env y completa la URL JDBC de Supabase.}
       DB_SCHEMA: ${DB_SCHEMA:-aulatrack}
       PORT: 8080
     ports:
