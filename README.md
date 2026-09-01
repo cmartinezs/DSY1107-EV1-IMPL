@@ -210,9 +210,11 @@ React y Angular pueden estar levantados simultáneamente y observar los mismos d
 
 ---
 
-## Estándar de diagramas
+## Conformidad de diagramas
 
-Toda documentación técnica del repositorio sigue [`docs/ESTANDAR-DIAGRAMAS.md`](docs/ESTANDAR-DIAGRAMAS.md): **Mermaid → PlantUML → ASCII**. Para representaciones principalmente visuales o ilustrativas se utiliza generación de imagen por IA cuando aporte más valor que un diagrama técnico.
+Este repositorio **consume**, pero no define, `STD-ENG-DIAG-001@0.1.0-draft — Diagramming & Visual Representation Standard`, cuya fuente normativa vive en `adumun/platform-standards`.
+
+Los diagramas de AulaTrack aplican ese estándar corporativo; cualquier desviación debe quedar justificada localmente sin copiar ni redefinir la norma.
 
 ## Principio de diseño
 
