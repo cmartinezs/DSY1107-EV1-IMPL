@@ -33,9 +33,7 @@ echo
 echo "[2/3] React: install + build"
 (
   cd "$ROOT_DIR/webapp-react"
-  if [[ ! -d node_modules ]]; then
-    npm install --no-audit --no-fund
-  fi
+  npm install --no-audit --no-fund
   npm run build
 )
 
@@ -43,9 +41,7 @@ echo
 echo "[3/3] Angular: install + build"
 (
   cd "$ROOT_DIR/webapp-ng"
-  if [[ ! -d node_modules ]]; then
-    npm install --no-audit --no-fund
-  fi
+  npm install --no-audit --no-fund
   npm run build
 )
 
