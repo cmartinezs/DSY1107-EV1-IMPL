@@ -6,12 +6,18 @@ La implementación avanza por capas para que cada cambio corresponda a un aprend
 
 - [x] monorepo multimódulo;
 - [x] backend Spring Boot único;
-- [x] persistencia JPA + H2;
+- [x] persistencia JPA + PostgreSQL/Supabase;
+- [x] H2 aislado únicamente para tests automatizados;
 - [x] dominio mínimo `Course` + `Task`;
 - [x] API REST común;
 - [x] cliente React;
 - [x] cliente Angular;
-- [x] CORS para ambas aplicaciones locales.
+- [x] CORS para ambas aplicaciones locales;
+- [x] quick checks multiplataforma;
+- [x] runtime smoke checks;
+- [x] Dockerfiles por módulo;
+- [x] Docker Compose para levantar API + ambas SPA;
+- [x] ejecución tradicional preservada sin Docker.
 
 ## Fase B · Identidad y seguridad
 
@@ -33,8 +39,13 @@ Se incorporará sin cambiar el contrato de negocio:
 - [ ] desplegar `api/` en AWS EC2;
 - [ ] publicar API mediante AWS API Gateway;
 - [ ] externalizar URLs/orígenes/configuración;
+- [ ] decidir datasource final para el ejercicio AWS según créditos y servicios disponibles;
 - [ ] conectar ambas SPA al mismo endpoint cloud;
 - [ ] ejecutar matriz E2E.
+
+### Datasource durante desarrollo
+
+Hasta resolver la decisión AWS, el datasource canónico es PostgreSQL administrado por Supabase. Las alternativas RDS PostgreSQL y PostgreSQL en Docker sobre EC2 se mantienen abiertas y documentadas en `docs/base-de-datos.md`.
 
 ## Política objetivo
 
