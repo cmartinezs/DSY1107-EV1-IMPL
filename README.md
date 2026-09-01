@@ -34,10 +34,10 @@ Ambos frontends consumen exactamente la misma API REST.
 flowchart LR
     React[React SPA] -->|HTTP / JSON| API[Spring Boot API]
     Angular[Angular SPA] -->|HTTP / JSON| API
-    API --> DB[(PostgreSQL / Supabase)]
+    API --> DB[(H2 local / PostgreSQL Supabase)]
 ```
 
-La base de datos está detrás de la API. Ninguna SPA accede directamente a Supabase.
+La base de datos está detrás de la API. Ninguna SPA accede directamente al datasource.
 
 ## Arquitectura objetivo EV1
 
@@ -79,7 +79,7 @@ El quick check valida los tres módulos sin requerir una conexión real a Supaba
 
 El backend usa **Maven Wrapper**; no requiere Maven instalado globalmente. Solo necesita JDK 21. El wrapper fija Maven 3.9.16 y descarga automáticamente lo necesario en la primera ejecución. Maven global queda únicamente como fallback de contingencia.
 
-Backend utiliza H2 únicamente durante tests automatizados; el runtime normal sigue siendo PostgreSQL.
+Los tests del backend utilizan H2 aislado en memoria.
 
 ### Linux / macOS / Git Bash
 
@@ -110,32 +110,9 @@ Un `[OK] Quick check completado.` significa que la estructura compila y los test
 
 ---
 
-# 2. Configuración de Supabase
+# 2. Runtime local rápido · cero configuración
 
-Copiar:
-
-```bash
-cp .env.example .env
-```
-
-y completar `SUPABASE_DB_URL` con el JDBC entregado por **Supabase Dashboard → Connect → JDBC**, usando Session Pooler en puerto `5432`.
-
-```env
-SUPABASE_DB_URL=jdbc:postgresql://...:5432/postgres?user=...&password=...&sslmode=require
-DB_SCHEMA=aulatrack
-```
-
-`.env` está ignorado por Git y no debe contenerse en commits.
-
-Más detalles y alternativas AWS: [`docs/base-de-datos.md`](docs/base-de-datos.md).
-
----
-
-# 3. Levantar con Docker
-
-Docker es una comodidad de desarrollo/despliegue, **no un requisito conceptual de EV1**.
-
-Requiere `.env` configurado.
+El runtime local por defecto utiliza **H2 en memoria**. No requiere `.env`, Supabase ni PostgreSQL externo.
 
 ```bash
 docker compose up --build
@@ -149,13 +126,58 @@ React    http://localhost:5173
 Angular  http://localhost:4200
 ```
 
+Luego puede ejecutarse:
+
+```bash
+bash scripts/smoke-running.sh
+```
+
+Este modo valida el stack completo local:
+
+```mermaid
+flowchart LR
+    React[React] --> API[Spring Boot]
+    Angular[Angular] --> API
+    API --> H2[(H2 en memoria)]
+```
+
+La persistencia H2 es efímera y se reconstruye al reiniciar el proceso/contenedor.
+
 Detener:
 
 ```bash
 docker compose down
 ```
 
-El Compose levanta los tres módulos de aplicación. **No levanta PostgreSQL local:** la API usa el Supabase configurado en `.env`.
+---
+
+# 3. Runtime de integración · Supabase PostgreSQL
+
+Cuando el objetivo sea validar integración real con PostgreSQL/Supabase, se activa explícitamente el perfil `supabase`.
+
+Copiar:
+
+```bash
+cp .env.example .env
+```
+
+y completar:
+
+```env
+SPRING_PROFILES_ACTIVE=supabase
+SUPABASE_DB_URL='jdbc:postgresql://HOST:5432/postgres?user=USER&password=PASSWORD&sslmode=require'
+DB_SCHEMA=aulatrack
+```
+
+Luego:
+
+```bash
+docker compose up --build
+```
+
+Con ese perfil, Spring carga `application-supabase.yml` y reemplaza H2 por PostgreSQL/Supabase.
+
+Más detalles y alternativas AWS: [`docs/base-de-datos.md`](docs/base-de-datos.md).
 
 ---
 
@@ -163,11 +185,31 @@ El Compose levanta los tres módulos de aplicación. **No levanta PostgreSQL loc
 
 Docker no es obligatorio. Los tres módulos siguen siendo ejecutables individualmente.
 
-## API
+## API local con H2
 
-La variable `SUPABASE_DB_URL` debe estar disponible en la shell.
+Linux/macOS/Git Bash:
 
-Linux/macOS/Git Bash, usando `.env`:
+```bash
+cd api
+./mvnw spring-boot:run
+```
+
+Si el checkout no preservó el bit ejecutable de `mvnw`:
+
+```bash
+sh ./mvnw spring-boot:run
+```
+
+PowerShell:
+
+```powershell
+cd api
+./mvnw.cmd spring-boot:run
+```
+
+## API con Supabase
+
+Linux/macOS/Git Bash:
 
 ```bash
 set -a
@@ -177,15 +219,10 @@ cd api
 ./mvnw spring-boot:run
 ```
 
-Si el checkout no preservó el bit ejecutable de `mvnw`, usar:
-
-```bash
-sh ./mvnw spring-boot:run
-```
-
 PowerShell:
 
 ```powershell
+$env:SPRING_PROFILES_ACTIVE="supabase"
 $env:SUPABASE_DB_URL="jdbc:postgresql://..."
 $env:DB_SCHEMA="aulatrack"
 cd api
@@ -214,7 +251,7 @@ npm start
 
 Angular: `http://localhost:4200`
 
-React y Angular pueden estar levantados simultáneamente y observar los mismos datos porque consumen el mismo backend y datasource.
+React y Angular pueden estar levantados simultáneamente y observar los mismos datos porque consumen el mismo backend y datasource activo.
 
 ---
 
