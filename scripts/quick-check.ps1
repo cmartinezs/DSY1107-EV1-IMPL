@@ -1,5 +1,6 @@
 $ErrorActionPreference = "Stop"
 $Root = Split-Path -Parent $PSScriptRoot
+$ApiDir = Join-Path $Root "api"
 
 function Require-Command([string]$Name) {
     if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
@@ -7,22 +8,43 @@ function Require-Command([string]$Name) {
     }
 }
 
+function Invoke-MavenWrapper {
+    param([Parameter(ValueFromRemainingArguments = $true)][string[]]$Args)
+
+    $cmd = Join-Path $ApiDir "mvnw.cmd"
+    $sh = Join-Path $ApiDir "mvnw"
+
+    if (Test-Path $cmd) {
+        & $cmd @Args
+    } elseif ((Test-Path $sh) -and (Get-Command bash -ErrorAction SilentlyContinue)) {
+        & bash $sh @Args
+    } elseif (Get-Command mvn -ErrorAction SilentlyContinue) {
+        Write-Warning "api/mvnw no existe; usando Maven global como fallback."
+        & mvn @Args
+    } else {
+        throw "No existe Maven Wrapper en api/ ni Maven global."
+    }
+
+    if ($LASTEXITCODE -ne 0) {
+        throw "Maven Wrapper finalizó con código $LASTEXITCODE"
+    }
+}
+
 Write-Host "== AulaTrack quick check =="
 Require-Command java
-Require-Command mvn
 Require-Command node
 Require-Command npm
 
 java -version
-mvn -version | Select-Object -First 1
+Invoke-MavenWrapper -Args @("-version")
 node --version
 npm --version
 
-Write-Host "`n[1/3] Backend: tests + package"
-Push-Location "$Root/api"
+Write-Host "`n[1/3] Backend: Maven Wrapper tests + package"
+Push-Location $ApiDir
 try {
-    mvn -q test
-    mvn -q -DskipTests package
+    Invoke-MavenWrapper -Args @("-q", "test")
+    Invoke-MavenWrapper -Args @("-q", "-DskipTests", "package")
 } finally {
     Pop-Location
 }
