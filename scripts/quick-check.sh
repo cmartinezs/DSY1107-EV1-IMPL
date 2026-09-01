@@ -17,7 +17,7 @@ require node
 require npm
 
 java -version
-mvn -version | head -n 1
+mvn -version
 node --version
 npm --version
 
