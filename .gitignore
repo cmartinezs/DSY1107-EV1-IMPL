@@ -1,0 +1,23 @@
+# Java
+api/target/
+*.log
+
+# Node
+webapp-react/node_modules/
+webapp-react/dist/
+webapp-ng/node_modules/
+webapp-ng/dist/
+
+# Local environment
+.env
+.env.local
+*.local
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
