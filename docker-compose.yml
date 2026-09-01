@@ -1,0 +1,28 @@
+services:
+  api:
+    build:
+      context: ./api
+    environment:
+      SUPABASE_DB_URL: ${SUPABASE_DB_URL}
+      DB_SCHEMA: ${DB_SCHEMA:-aulatrack}
+      PORT: 8080
+    ports:
+      - "${API_PORT:-8080}:8080"
+
+  webapp-react:
+    build:
+      context: ./webapp-react
+      args:
+        VITE_API_URL: http://localhost:${API_PORT:-8080}
+    depends_on:
+      - api
+    ports:
+      - "${REACT_PORT:-5173}:80"
+
+  webapp-ng:
+    build:
+      context: ./webapp-ng
+    depends_on:
+      - api
+    ports:
+      - "${ANGULAR_PORT:-4200}:80"
