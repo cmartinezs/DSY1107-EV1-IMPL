@@ -3,7 +3,8 @@ services:
     build:
       context: ./api
     environment:
-      SUPABASE_DB_URL: ${SUPABASE_DB_URL:?SUPABASE_DB_URL no está definido. Copia .env.example a .env y completa la URL JDBC de Supabase.}
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-default}
+      SUPABASE_DB_URL: ${SUPABASE_DB_URL:-}
       DB_SCHEMA: ${DB_SCHEMA:-aulatrack}
       PORT: 8080
     ports:
