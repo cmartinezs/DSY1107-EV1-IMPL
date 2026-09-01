@@ -8,8 +8,9 @@ El objetivo no es construir un sistema complejo. AulaTrack sirve como referencia
 
 Gestor docente mínimo de asignaturas y pendientes.
 
-```text
-Course 1 ─────── N Task
+```mermaid
+erDiagram
+    COURSE ||--o{ TASK : contiene
 ```
 
 ## Módulos
@@ -29,36 +30,32 @@ Ambos frontends consumen exactamente la misma API REST.
 
 ## Arquitectura actual
 
-```text
-React ──────┐
-            ├── HTTP / JSON ───► Spring Boot API ───► PostgreSQL / Supabase
-Angular ────┘
+```mermaid
+flowchart LR
+    React[React SPA] -->|HTTP / JSON| API[Spring Boot API]
+    Angular[Angular SPA] -->|HTTP / JSON| API
+    API --> DB[(PostgreSQL / Supabase)]
 ```
 
 La base de datos está detrás de la API. Ninguna SPA accede directamente a Supabase.
 
 ## Arquitectura objetivo EV1
 
-```text
-                 Microsoft Entra ID
-                    ▲           ▲
-                    │           │
-              Auth Code     Auth Code
-                + PKCE        + PKCE
-                    │           │
-             React + MSAL   Angular + MSAL
-                    │           │
-                    └─────┬─────┘
-                          │ Access Token
-                          ▼
-                   AWS API Gateway
-                          │ Bearer JWT
-                          ▼
-                   Spring Boot API
-                 OAuth2 Resource Server
-                          │
-                          ▼
-                 PostgreSQL datasource
+```mermaid
+flowchart TB
+    Entra[Microsoft Entra ID]
+    React[React + MSAL]
+    Angular[Angular + MSAL]
+    Gateway[AWS API Gateway]
+    API[Spring Boot API<br/>OAuth2 Resource Server]
+    DB[(PostgreSQL datasource)]
+
+    React <-->|Authorization Code + PKCE| Entra
+    Angular <-->|Authorization Code + PKCE| Entra
+    React -->|Access Token| Gateway
+    Angular -->|Access Token| Gateway
+    Gateway -->|Bearer JWT| API
+    API --> DB
 ```
 
 ## Contrato REST inicial
@@ -96,16 +93,15 @@ bash scripts/quick-check.sh
 
 Valida:
 
-```text
-Java/Maven disponibles
-      ↓
-API: mvn test + package
-      ↓
-React: install si hace falta + build
-      ↓
-Angular: install si hace falta + build
-      ↓
-Docker Compose config, si Docker está disponible
+```mermaid
+flowchart TD
+    Env[Java / Maven / Node / npm disponibles] --> API[API: mvn test + package]
+    API --> React[React: npm install + build]
+    React --> Angular[Angular: npm install + build]
+    Angular --> Docker{¿Docker Compose disponible?}
+    Docker -- Sí --> Compose[Validar docker compose config]
+    Docker -- No --> Done[Finalizar]
+    Compose --> Done
 ```
 
 Un `[OK] Quick check completado.` significa que la estructura compila y los tests básicos pasan. No equivale todavía a una prueba E2E contra Entra/Supabase/AWS.
@@ -213,6 +209,10 @@ Angular: `http://localhost:4200`
 React y Angular pueden estar levantados simultáneamente y observar los mismos datos porque consumen el mismo backend y datasource.
 
 ---
+
+## Estándar de diagramas
+
+Toda documentación técnica del repositorio sigue [`docs/ESTANDAR-DIAGRAMAS.md`](docs/ESTANDAR-DIAGRAMAS.md): **Mermaid → PlantUML → ASCII**. Para representaciones principalmente visuales o ilustrativas se utiliza generación de imagen por IA cuando aporte más valor que un diagrama técnico.
 
 ## Principio de diseño
 
