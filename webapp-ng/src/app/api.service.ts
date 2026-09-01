@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../environments/environment';
 
 export type Course = {
   id: number;
@@ -22,7 +23,7 @@ export type Task = {
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
-  private readonly baseUrl = 'http://localhost:8080';
+  private readonly baseUrl = environment.apiUrl;
 
   constructor(private readonly http: HttpClient) {}
 
